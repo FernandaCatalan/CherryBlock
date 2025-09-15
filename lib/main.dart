@@ -9,7 +9,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     var logger = Logger();
@@ -18,8 +17,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cherry Block',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        textTheme: GoogleFonts.interTextTheme(),
+        textTheme: GoogleFonts.interTextTheme(
+          Theme.of(context).textTheme,
+        ),
+        primaryColor: const Color(0xFFB22222), 
+        scaffoldBackgroundColor: const Color(0xFFF5E9DA), 
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF5C4033), 
+          titleTextStyle: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFFAFAFA),
+          ),
+        ),
       ),
       home: const SplashScreen(),
     );

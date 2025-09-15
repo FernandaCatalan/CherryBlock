@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 245, 233, 218),
+      backgroundColor: const Color(0xFFF5E9DA),
       body: FadeTransition(
         opacity: _animation,
         child: Center(
@@ -86,14 +86,15 @@ class _SplashScreenState extends State<SplashScreen>
               Text(
                 'Cherry Block',
                 style: TextStyle(
-                  fontSize: size.width * 0.06,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 178, 34, 34),
+                  fontFamily: 'Inter',
+                  fontSize: size.width * 0.08,
+                  fontWeight: FontWeight.bold, 
+                  color: Color(0xFFB22222),
                 ),
               ),
               const SizedBox(height: 10),
               const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 178, 34, 34)),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFB22222)),
               ),
             ],
           ),
