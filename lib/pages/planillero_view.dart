@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class BossView extends StatelessWidget {
-  const BossView({super.key});
+class PlanilleroView extends StatelessWidget {
+  const PlanilleroView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vista del Dueño'),
+        title: const Text('Vista del Planillero'),
       ),
       body: const Center(
         child: Text(
-          'Bienvenido, Dueño',
+          'Bienvenido, Planillero',
           style: TextStyle(fontSize: 24),
         ),
       ),

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class BossView extends StatelessWidget {
-  const BossView({super.key});
+class CuadrillaView extends StatelessWidget {
+  const CuadrillaView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vista del Dueño'),
+        title: const Text('Vista del Jefe de Cuadrilla'),
       ),
       body: const Center(
         child: Text(
-          'Bienvenido, Dueño',
+          'Bienvenido, Jefe de Cuadrilla',
           style: TextStyle(fontSize: 24),
         ),
       ),
