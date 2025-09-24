@@ -1,7 +1,7 @@
 
 # CherryBlock
 
-Aplicación para la gestión completa de cosecha de cerezas con distintos tipo de usuarios y funcionalidades especificas para cada rol. Permite registrar la producción de los cosecheros meriante QRs únicos, controlar el avance de los cuarteles e hileras cosechadas, llevar un seguimiento de cajas y bins, realizar inspecciones en packing y entregar reportes claros a los dueños y contratistas.
+Aplicación para la gestión completa de cosecha de cerezas con distintos tipo de usuarios y funcionalidades especificas para cada rol. Permite registrar la producción de los cosecheros mediante QRs únicos, controlar el avance de los cuarteles e hileras cosechadas, llevar un seguimiento de cajas y bins, realizar inspecciones en packing y entregar reportes claros a los dueños y contratistas.
 
 ## Roles y funcionalidades
 ### Dueño
@@ -85,4 +85,5 @@ mindmap
 
     
 ```
+
 
