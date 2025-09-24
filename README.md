@@ -27,6 +27,9 @@ Aplicación para la gestión completa de cosecha de cerezas con distintos tipo d
 ### Planillero
 * Registra la cantidad de cajas generadas por trabajador.
 
+### Video
+https://drive.google.com/file/d/1GUc9i7cTarsiCKffbGlesxg6OypuAdH0/view?usp=sharing
+
 ### Diagrama
 
 ```mermaid
@@ -85,5 +88,6 @@ mindmap
 
     
 ```
+
 
 
