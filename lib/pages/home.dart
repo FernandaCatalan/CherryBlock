@@ -5,6 +5,7 @@ import 'packing_view.dart';
 import 'contractor_view.dart';
 import 'planillero_view.dart';
 import 'welcome_view.dart';
+import 'acerca_view.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Color(0xFFF5E9DA),
       appBar: AppBar(
         backgroundColor: Color(0xFF5C4033),
-        title: const Text('Cherry Block'),
+        title: const Text('CHERRY BLOCK'),
         titleTextStyle: const TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
@@ -38,7 +39,7 @@ class HomeScreen extends StatelessWidget {
               'Dueño', 
               Icons.account_balance, 
               Color(0xFFB22222), 
-              const WelcomeView(
+              WelcomeView(
                 roleName: 'Dueño', 
                 nextPage: BossView(),
               )),
@@ -78,6 +79,13 @@ class HomeScreen extends StatelessWidget {
                 roleName: 'Planillero', 
                 nextPage: PlanilleroView(),
               )),
+            _roleButton(
+              context, 
+              'Acerca de', 
+              Icons.info, 
+              Color(0xFFB22222), 
+              AcercaView(),
+            ),
           ],
         ),
       ),
