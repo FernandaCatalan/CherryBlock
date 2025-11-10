@@ -38,9 +38,11 @@ Aplicación para la gestión completa de cosecha de cerezas con distintos tipo d
 ### Instalación
 
 ### Capturas de pantalla
-![Pantalla Inicial](cherry_block/assets/PantallaInicial.jfif)
-![Pantalla Planillero](cherry_block/assets/PantallaRegistrar.jfif)
-![Pantalla Contratista](cherry_block/assets/PantallaDatosGuardados.jfif)
+<p align="center">
+<img src="assets/PantallaInicial.jfif" alt="Home" width="200"/>
+<img src="assets/PantallaRegistrar.jfif" alt="Planillero" width="200"/>
+<img src="assets/PantallaDatosGuardados.jfif" alt="Contratista" width="200"/>
+</p>
 
 ### Video
 https://drive.google.com/file/d/1GUc9i7cTarsiCKffbGlesxg6OypuAdH0/view?usp=sharing
@@ -106,6 +108,7 @@ mindmap
 
     
 ```
+
 
 
 
