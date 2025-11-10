@@ -49,7 +49,9 @@ https://drive.google.com/file/d/1GUc9i7cTarsiCKffbGlesxg6OypuAdH0/view?usp=shari
 
 ### Diagrama
 
-![Diagrama de flujo principal](cherry_block/assets/DiagramaFlujoCherryBlock.drawio)
+<p align="center">
+<img src="assets/DiagramaFlujoCherryBlock.drawio.png" alt="Diagrama Flujo" width="200"/>
+</p>
 
 
 ```mermaid
@@ -108,6 +110,7 @@ mindmap
 
     
 ```
+
 
 
 
