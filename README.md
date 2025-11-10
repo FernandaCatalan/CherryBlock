@@ -27,7 +27,7 @@ Aplicación para la gestión completa de cosecha de cerezas con distintos tipo d
 ### Planillero
 * Registra la cantidad de cajas generadas por trabajador.
 
-##Nuevas funcionalidades
+## Nuevas funcionalidades
 
 ### Preferencias
 * Modo oscuro/claro: Personaliza la apariencia de la app.
@@ -110,6 +110,7 @@ mindmap
 
     
 ```
+
 
 
 
