@@ -17,39 +17,38 @@ class _PackingViewState extends State<PackingView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colorScheme.primary,
+        backgroundColor: const Color(0xFFB22222),
         title: Text(
           sections[selectedIndex],
-          style: textTheme.titleLarge?.copyWith(
-            color: colorScheme.onPrimary,
+          style: const TextStyle(
+            fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
       ),
       drawer: Drawer(
-        backgroundColor: colorScheme.primary,
+        backgroundColor: const Color(0xFFB22222), 
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
+              const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Text(
                   "CHERRY BLOCK",
-                  style: textTheme.headlineSmall?.copyWith(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              Divider(color: colorScheme.onPrimary.withOpacity(0.3)),
+              const Divider(color: Colors.white24),
               Expanded(
                 child: ListView.builder(
                   itemCount: sections.length + 1,
@@ -58,17 +57,16 @@ class _PackingViewState extends State<PackingView> {
                       final index = i;
                       final title = sections[index];
                       return ListTile(
-                        leading: Icon(Icons.circle,
-                            color: colorScheme.onPrimary, size: 12),
+                        leading: const Icon(Icons.circle, color: Colors.white, size: 12),
                         title: Text(
                           title,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onPrimary,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.white,
                           ),
                         ),
                         selected: selectedIndex == index,
-                        selectedTileColor:
-                            colorScheme.secondary.withOpacity(0.3),
+                        selectedTileColor: Colors.pinkAccent.shade100,
                         onTap: () {
                           setState(() => selectedIndex = index);
                           Navigator.pop(context);
@@ -77,18 +75,17 @@ class _PackingViewState extends State<PackingView> {
                     } else {
                       return Column(
                         children: [
-                          Divider(color: colorScheme.onPrimary.withOpacity(0.3)),
+                          const Divider(color: Colors.white24),
                           ListTile(
-                            leading: Icon(Icons.arrow_back,
-                                color: colorScheme.onPrimary),
-                            title: Text(
+                            leading: const Icon(Icons.arrow_back, color: Colors.white),
+                            title: const Text(
                               "Volver al Home",
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.onPrimary,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Colors.white,
                               ),
                             ),
-                            onTap: () => Navigator.popUntil(
-                                context, (route) => route.isFirst),
+                            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
                           ),
                         ],
                       );
@@ -103,9 +100,11 @@ class _PackingViewState extends State<PackingView> {
       body: Center(
         child: Text(
           sections[selectedIndex],
-          style: textTheme.headlineMedium?.copyWith(
-            color: colorScheme.primary,
+          style: const TextStyle(
+            fontSize: 28,
+            fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
+            color: Color(0xFFB22222),
           ),
         ),
       ),

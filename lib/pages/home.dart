@@ -1,4 +1,3 @@
-import 'package:cherry_block/pages/preferences_view.dart';
 import 'package:flutter/material.dart';
 import 'boss_view.dart';
 import 'cuadrilla_view.dart';
@@ -8,37 +7,27 @@ import 'planillero_view.dart';
 import 'welcome_view.dart';
 import 'acerca_view.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
-  final String title;
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: Color(0xFFF5E9DA),
       appBar: AppBar(
-        backgroundColor: colorScheme.primary,
-        title: Text(
-          'CHERRY BLOCK',
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: colorScheme.onPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+        backgroundColor: Color(0xFF5C4033),
+        title: const Text('CHERRY BLOCK'),
+        titleTextStyle: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFFAFAFA),
         ),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
@@ -46,58 +35,56 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           children: [
             _roleButton(
-              context,
-              'Dueño',
-              Icons.account_balance,
-              WelcomeView(roleName: 'Dueño', nextPage: const BossView()),
-            ),
+              context, 
+              'Dueño', 
+              Icons.account_balance, 
+              Color(0xFFB22222), 
+              WelcomeView(
+                roleName: 'Dueño', 
+                nextPage: BossView(),
+              )),
             _roleButton(
-              context,
-              'Jefe de Cuadrilla',
-              Icons.group,
+              context, 
+              'Jefe de Cuadrilla', 
+              Icons.group, 
+              Color(0xFFB22222), 
               const WelcomeView(
-                roleName: 'Jefe de Cuadrilla',
+                roleName: 'Jefe de Cuadrilla', 
                 nextPage: CuadrillaView(),
-              ),
-            ),
+              )),
             _roleButton(
-              context,
-              'Jefe de Packing',
-              Icons.local_shipping,
+              context, 
+              'Jefe de Packing', 
+              Icons.local_shipping, 
+              Color(0xFFB22222), 
               const WelcomeView(
-                roleName: 'Jefe de Packing',
+                roleName: 'Jefe de Packing', 
                 nextPage: PackingView(),
-              ),
-            ),
+              )),
             _roleButton(
-              context,
-              'Contratista',
-              Icons.handshake,
+              context, 
+              'Contratista', 
+              Icons.handshake, 
+              Color(0xFFB22222), 
               const WelcomeView(
-                roleName: 'Contratista',
+                roleName: 'Contratista', 
                 nextPage: ContractorView(),
-              ),
-            ),
+              )),
             _roleButton(
-              context,
-              'Planillero',
-              Icons.edit,
+              context, 
+              'Planillero', 
+              Icons.edit, 
+              Color(0xFFB22222), 
               const WelcomeView(
-                roleName: 'Planillero',
+                roleName: 'Planillero', 
                 nextPage: PlanilleroView(),
-              ),
-            ),
+              )),
             _roleButton(
-              context,
-              'Preferencias',
-              Icons.settings,
-              const PreferencesView(),
-            ),
-            _roleButton(
-              context,
-              'Acerca de',
-              Icons.info,
-              const AcercaView(),
+              context, 
+              'Acerca de', 
+              Icons.info, 
+              Color(0xFFB22222), 
+              AcercaView(),
             ),
           ],
         ),
@@ -105,20 +92,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _roleButton(
-      BuildContext context, String title, IconData icon, Widget view) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
+  Widget _roleButton(BuildContext context, String title, IconData icon, Color color, Widget view) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: colorScheme.primary,
+        backgroundColor: color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         padding: const EdgeInsets.all(16),
       ),
-      onPressed: () {
+      onPressed: (){
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => view),
@@ -127,14 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 50, color: colorScheme.onPrimary),
+          Icon(icon, size: 50, color: Color(0xFFFAFAFA)),
           const SizedBox(height: 10),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(
+            style: const TextStyle(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: colorScheme.onPrimary,
+              color: Color(0xFFFAFAFA),
             ),
           ),
         ],

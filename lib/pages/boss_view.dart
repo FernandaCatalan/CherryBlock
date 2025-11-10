@@ -36,38 +36,38 @@ class _BossViewState extends State<BossView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: colors.primary,
+        backgroundColor: const Color(0xFFB22222),
         title: Text(
           sections[selectedIndex],
-          style: theme.textTheme.titleLarge?.copyWith(
+          style: const TextStyle(
+            fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
-            color: colors.onPrimary,
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
       ),
       drawer: Drawer(
-        backgroundColor: colors.primary,
+        backgroundColor: const Color(0xFFB22222),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
+              const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Text(
                   "CHERRY BLOCK",
-                  style: theme.textTheme.headlineSmall?.copyWith(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: colors.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              Divider(color: colors.onPrimary.withOpacity(0.3)),
+              const Divider(color: Colors.white24),
               Expanded(
                 child: ListView.builder(
                   itemCount: sections.length + 1,
@@ -76,15 +76,16 @@ class _BossViewState extends State<BossView> {
                       final index = i;
                       final title = sections[index];
                       return ListTile(
-                        leading: Icon(Icons.circle, color: colors.onPrimary, size: 12),
+                        leading: const Icon(Icons.circle, color: Colors.white, size: 12),
                         title: Text(
                           title,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: colors.onPrimary,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.white,
                           ),
                         ),
                         selected: selectedIndex == index,
-                        selectedTileColor: colors.secondaryContainer,
+                        selectedTileColor: Colors.pinkAccent.shade100,
                         onTap: () {
                           setState(() => selectedIndex = index);
                           Navigator.pop(context);
@@ -93,13 +94,14 @@ class _BossViewState extends State<BossView> {
                     } else {
                       return Column(
                         children: [
-                          Divider(color: colors.onPrimary.withOpacity(0.3)),
+                          const Divider(color: Colors.white24),
                           ListTile(
-                            leading: Icon(Icons.arrow_back, color: colors.onPrimary),
-                            title: Text(
+                            leading: const Icon(Icons.arrow_back, color: Colors.white),
+                            title: const Text(
                               "Volver al Home",
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: colors.onPrimary,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Colors.white,
                               ),
                             ),
                             onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
@@ -114,21 +116,21 @@ class _BossViewState extends State<BossView> {
           ),
         ),
       ),
-      body: _buildBody(theme, colors),
+      body: _buildBody(),
     );
   }
 
-  Widget _buildBody(ThemeData theme, ColorScheme colors) {
+  Widget _buildBody() {
     if (sections[selectedIndex] == "Trabajadores") {
       return ListView.builder(
         itemCount: workers.length,
         itemBuilder: (context, index) {
           final worker = workers[index];
           return ListTile(
-            leading: Icon(Icons.person, color: colors.primary),
-            title: Text(worker.nombre, style: theme.textTheme.bodyLarge),
-            subtitle: Text(worker.puesto, style: theme.textTheme.bodyMedium),
-            trailing: Icon(Icons.arrow_forward_ios, color: colors.outline),
+            leading: const Icon(Icons.person, color: Colors.black),
+            title: Text(worker.nombre, style: const TextStyle(color: Colors.black, fontFamily: 'Inter')),
+            subtitle: Text(worker.puesto, style: const TextStyle(color: Colors.black, fontFamily: 'Inter')),
+            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
             onTap: () {
               Navigator.push(
                 context,
@@ -146,13 +148,11 @@ class _BossViewState extends State<BossView> {
         itemBuilder: (context, index) {
           final contractor = contractors[index];
           return ListTile(
-            leading: Icon(Icons.business, color: colors.primary),
-            title: Text(contractor.nombre, style: theme.textTheme.bodyLarge),
-            subtitle: Text(
-              'Cantidad de personas: ${contractor.cantidadPersonas}',
-              style: theme.textTheme.bodyMedium,
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, color: colors.outline),
+            leading: const Icon(Icons.business, color: Colors.black),
+            title: Text(contractor.nombre, style: const TextStyle(color: Colors.black, fontFamily: 'Inter')),
+            subtitle: Text('Cantidad de personas: ${contractor.cantidadPersonas}',
+                style: const TextStyle(color: Colors.black, fontFamily: 'Inter')),
+            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black),
             onTap: () {
               Navigator.push(
                 context,
@@ -167,9 +167,11 @@ class _BossViewState extends State<BossView> {
     return Center(
       child: Text(
         sections[selectedIndex],
-        style: theme.textTheme.headlineSmall?.copyWith(
+        style: const TextStyle(
+          fontSize: 28,
+          fontFamily: 'Inter',
           fontWeight: FontWeight.bold,
-          color: colors.primary,
+          color: Colors.white,
         ),
       ),
     );
