@@ -15,11 +15,34 @@ class CherryBlockApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cherry Block',
       debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system, 
       theme: ThemeData(
-        textTheme: GoogleFonts.interTextTheme(
-          Theme.of(context).textTheme,
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFFB22222),
+          onPrimary: Colors.white,
+          surface: Color(0xFFF5E9DA),
+          onSurface: Colors.black,
+          secondary: Color(0xFF8B1A1A),
         ),
-        primarySwatch: Colors.red,
+        textTheme: GoogleFonts.interTextTheme().copyWith(
+          bodyLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          bodyMedium: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          titleLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFFFF6F91), 
+          onPrimary: Colors.white,
+          surface: Color(0xFF1E1E1E),
+          onSurface: Color(0xFFF5E9DA),
+          secondary: Color(0xFFFFB3C6),
+        ),
+        textTheme: GoogleFonts.interTextTheme().copyWith(
+          bodyLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          bodyMedium: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          titleLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
       ),
       home: const SplashScreen(),
     );
@@ -49,7 +72,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 6), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(title: 'Cherry Block'),
+        ),
       );
     });
   }
@@ -63,9 +88,10 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5E9DA),
+      backgroundColor: theme.colorScheme.surface,
       body: FadeTransition(
         opacity: _animation,
         child: Center(
@@ -85,16 +111,16 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 20),
               Text(
                 'Cherry Block',
-                style: TextStyle(
-                  fontFamily: 'Inter',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.primary,
                   fontSize: size.width * 0.08,
-                  fontWeight: FontWeight.bold, 
-                  color: Color(0xFFB22222),
                 ),
               ),
               const SizedBox(height: 10),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFB22222)),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  theme.colorScheme.primary,
+                ),
               ),
             ],
           ),
