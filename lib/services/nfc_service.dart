@@ -14,14 +14,44 @@ class NFCService {
       pollingOptions: {
         NfcPollingOption.iso14443,
         NfcPollingOption.iso15693,
+        NfcPollingOption.iso18092,
       },
       onDiscovered: (NfcTag tag) async {
         try {
-          final tagData = tag.data;
+          // Verifica el tipo del objeto data
+          final dynamic rawData = tag.data;
+
+          if (rawData is! Map<String, dynamic>) {
+            // Si no es un Map, mostramos la info completa en texto
+            await NfcManager.instance.stopSession();
+            completer.complete("Tipo de etiqueta desconocido: ${rawData.runtimeType}");
+            return;
+          }
+
+          final data = rawData;
+
+          // Intentamos extraer el identificador de varios tipos posibles
+          final mifare = data['mifare'] as Map<String, dynamic>?;
+          final nfca = data['nfca'] as Map<String, dynamic>?;
+          final nfcf = data['nfcf'] as Map<String, dynamic>?;
+          final nfcv = data['nfcv'] as Map<String, dynamic>?;
+
+          final idBytes = mifare?['identifier'] ??
+              nfca?['identifier'] ??
+              nfcf?['identifier'] ??
+              nfcv?['identifier'];
+
+          String tagId = idBytes != null
+              ? (idBytes as List)
+                  .map((b) =>
+                      (b as int).toRadixString(16).padLeft(2, '0').toUpperCase())
+                  .join()
+              : "ID no disponible";
+
           await NfcManager.instance.stopSession();
-          completer.complete(tagData.toString());
+          completer.complete(tagId);
         } catch (e) {
-          await NfcManager.instance.stopSession(); 
+          await NfcManager.instance.stopSession();
           completer.completeError("Error al leer la etiqueta: $e");
         }
       },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/services/database_helper.dart'; // Asegúrate de que esta ruta sea correcta
 
 class ContractorView extends StatefulWidget {
   const ContractorView({super.key});
@@ -16,9 +17,17 @@ class _ContractorViewState extends State<ContractorView> {
     "Exportar datos"
   ];
 
+  late Future<List<Map<String, dynamic>>> _trabajadoresFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _trabajadoresFuture = DatabaseHelper.instance.getAllTrabajadores();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Accede al tema actual
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
@@ -68,7 +77,8 @@ class _ContractorViewState extends State<ContractorView> {
                           ),
                         ),
                         selected: selectedIndex == index,
-                        selectedTileColor: colorScheme.secondary.withOpacity(0.3),
+                        selectedTileColor:
+                            colorScheme.secondary.withOpacity(0.3),
                         onTap: () {
                           setState(() => selectedIndex = index);
                           Navigator.pop(context);
@@ -100,15 +110,56 @@ class _ContractorViewState extends State<ContractorView> {
           ),
         ),
       ),
-      body: Center(
-        child: Text(
-          sections[selectedIndex],
-          style: textTheme.headlineMedium?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (selectedIndex) {
+      case 0:
+        return _buildCosecheros();
+      case 1:
+        return const Center(child: Text("Cantidad de cajas (pendiente)"));
+      case 2:
+        return const Center(child: Text("Exportar datos (pendiente)"));
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildCosecheros() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _trabajadoresFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text("No hay trabajadores registrados."),
+          );
+        }
+
+        final trabajadores = snapshot.data!;
+
+        return ListView.builder(
+          itemCount: trabajadores.length,
+          itemBuilder: (context, index) {
+            final trabajador = trabajadores[index];
+            return Card(
+              margin: const EdgeInsets.all(8),
+              elevation: 3,
+              child: ListTile(
+                leading: const Icon(Icons.person),
+                title: Text(trabajador['nombre'] ?? 'Sin nombre'),
+                subtitle: Text("Código: ${trabajador['codigo'] ?? ''}"),
+                trailing: Text("Cajas: ${trabajador['cajas'] ?? 0}"),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

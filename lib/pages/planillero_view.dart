@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '/services/nfc_service.dart'; 
+import '/services/nfc_service.dart';
+import '/services/database_helper.dart';
 
 class PlanilleroView extends StatefulWidget {
   const PlanilleroView({super.key});
@@ -13,8 +14,11 @@ class _PlanilleroViewState extends State<PlanilleroView> {
   final List<String> sections = ["Registrar trabajadores", "Alertas"];
 
   final _nfcService = NFCService();
+  final _db = DatabaseHelper.instance;
   bool _isLoading = false;
   String? _detectedTag;
+  Map<String, dynamic>? _existingWorker;
+
   final _formKey = GlobalKey<FormState>();
   String _nombre = "";
   String _codigo = "";
@@ -147,6 +151,8 @@ class _PlanilleroViewState extends State<PlanilleroView> {
   }
 
   Widget _buildFormCard() {
+    final esExistente = _existingWorker != null;
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.all(16),
@@ -156,22 +162,31 @@ class _PlanilleroViewState extends State<PlanilleroView> {
           key: _formKey,
           child: Column(
             children: [
-              Text("Etiqueta NFC detectada", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                esExistente
+                    ? "Etiqueta registrada — ingresar cantidad de cajas"
+                    : "Etiqueta nueva — registrar trabajador",
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
+              if (!esExistente) ...[
+                TextFormField(
+                  decoration: const InputDecoration(labelText: "Nombre"),
+                  onSaved: (v) => _nombre = v ?? "",
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Ingrese un nombre" : null,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: "Código"),
+                  onSaved: (v) => _codigo = v ?? "",
+                  validator: (v) =>
+                      v == null || v.isEmpty ? "Ingrese un código" : null,
+                ),
+              ],
               TextFormField(
-                decoration: const InputDecoration(labelText: "Nombre"),
-                onSaved: (v) => _nombre = v ?? "",
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Ingrese un nombre" : null,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: "Código"),
-                onSaved: (v) => _codigo = v ?? "",
-                validator: (v) =>
-                    v == null || v.isEmpty ? "Ingrese un código" : null,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: "Cantidad de cajas"),
+                decoration:
+                    const InputDecoration(labelText: "Cantidad de cajas"),
                 keyboardType: TextInputType.number,
                 onSaved: (v) => _cajas = v ?? "",
                 validator: (v) =>
@@ -180,7 +195,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _guardarDatos,
-                child: const Text("Guardar registro"),
+                child: Text(esExistente ? "Actualizar cajas" : "Guardar"),
               ),
             ],
           ),
@@ -198,17 +213,24 @@ class _PlanilleroViewState extends State<PlanilleroView> {
     );
   }
 
+  /// 🔹 Leer NFC y verificar si ya existe en la base de datos
   Future<void> _leerNfc() async {
     setState(() {
       _isLoading = true;
       _detectedTag = null;
+      _existingWorker = null;
     });
 
     try {
       final tagData = await _nfcService.readNfcTag();
-      if (tagData != null && !tagData.contains("no disponible")) {
+
+      if (tagData != null && !(tagData.contains("no disponible"))) {
+        // 🔍 Buscar si ya existe
+        final existing = await _db.buscarTrabajadorPorEtiqueta(tagData);
+
         setState(() {
           _detectedTag = tagData;
+          _existingWorker = existing; // null si no existe
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -220,21 +242,50 @@ class _PlanilleroViewState extends State<PlanilleroView> {
         SnackBar(content: Text("Error: $e")),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
-  void _guardarDatos() {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState!.save();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Datos guardados correctamente")),
-      );
-      setState(() {
-        _detectedTag = null; 
-      });
+  /// 🔹 Guardar o actualizar datos
+  Future<void> _guardarDatos() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    _formKey.currentState!.save();
+
+    final esExistente = _existingWorker != null;
+
+    if (esExistente) {
+      // 🔄 Solo actualizar cantidad de cajas
+      final updated = {
+        "id": _existingWorker!["id"],
+        "nombre": _existingWorker!["nombre"],
+        "codigo": _existingWorker!["codigo"],
+        "cajas": _existingWorker!["cajas"] + int.parse(_cajas),
+        "etiqueta_nfc": _existingWorker!["etiqueta_nfc"],
+        "fecha_registro": DateTime.now().toIso8601String(),
+      };
+      await _db.updateTrabajador(updated);
+    } else {
+      // 🆕 Nuevo registro
+      final nuevo = {
+        "nombre": _nombre,
+        "codigo": _codigo,
+        "cajas": int.parse(_cajas),
+        "etiqueta_nfc": _detectedTag!,
+        "fecha_registro": DateTime.now().toIso8601String(),
+      };
+      await _db.insertTrabajador(nuevo);
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(esExistente
+          ? "Cantidad de cajas actualizada correctamente"
+          : "Trabajador registrado correctamente"),
+    ));
+
+    setState(() {
+      _detectedTag = null;
+      _existingWorker = null;
+      _formKey.currentState?.reset();
+    });
   }
 }
