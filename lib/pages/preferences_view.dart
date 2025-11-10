@@ -52,7 +52,7 @@ class _PreferencesViewState extends State<PreferencesView> {
               value: unit,
               items: const [
                 DropdownMenuItem(value: "kg", child: Text("Kilogramos")),
-                DropdownMenuItem(value: "l", child: Text("Litros")),
+                DropdownMenuItem(value: "l", child: Text("Libras")),
               ],
               onChanged: (value) {
                 setState(() => unit = value!);

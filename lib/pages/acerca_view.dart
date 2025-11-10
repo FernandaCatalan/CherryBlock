@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'feedback.dart';
 
 class AcercaView extends StatelessWidget {
   const AcercaView({super.key});
@@ -44,6 +45,14 @@ class AcercaView extends StatelessWidget {
             const Text(
               'Cherry block es una aplicación para la gestión de actividades en un fundo.',
               style: TextStyle(fontSize: 16, fontFamily: 'Inter'),
+            ),
+            const SizedBox(height: 5),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context,MaterialPageRoute(builder: (context) => FeedbackPage())
+              );
+              },
+              child: const Text('Valorar la App'),
             ),
           ],
         ),
