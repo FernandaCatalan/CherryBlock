@@ -45,7 +45,7 @@ Aplicación para la gestión completa de cosecha de cerezas con distintos tipo d
 </p>
 
 ### Video
-https://drive.google.com/file/d/1GUc9i7cTarsiCKffbGlesxg6OypuAdH0/view?usp=sharing
+https://drive.google.com/file/d/1mBXWjvFNCSZ54XPL02E8US0mLuSjFVDA/view?usp=sharing
 
 ### Diagrama
 
@@ -110,6 +110,7 @@ mindmap
 
     
 ```
+
 
 
 
