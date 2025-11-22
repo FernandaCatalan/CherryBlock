@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "903861198720",
+    "project_id": "cherryblock-c0113",
+    "storage_bucket": "cherryblock-c0113.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903861198720:android:e99d2f6153b6cc2bbaeb65",
+        "android_client_info": {
+          "package_name": "com.example.cherry_block"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "903861198720-75rddql8pkrfu9p5f4m5bfj80u19rrek.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6PuqN74vxkay7bXwqakp1JS7Vw4toRBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "903861198720-75rddql8pkrfu9p5f4m5bfj80u19rrek.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
