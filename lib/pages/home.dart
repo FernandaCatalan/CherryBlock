@@ -7,6 +7,7 @@ import 'contractor_view.dart';
 import 'planillero_view.dart';
 import 'welcome_view.dart';
 import 'acerca_view.dart';
+import 'qr_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 nextPage: ContractorView(),
               ),
             ),
-            _roleButton(
+            /*_roleButton(
               context,
               'Planillero',
               Icons.edit,
@@ -86,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 roleName: 'Planillero',
                 nextPage: PlanilleroView(),
               ),
-            ),
+            ),*/
             _roleButton(
               context,
               'Preferencias',
@@ -98,6 +99,12 @@ class _HomeScreenState extends State<HomeScreen> {
               'Acerca de',
               Icons.info,
               const AcercaView(),
+            ),
+            _roleButton(
+              context,
+              'Test QR',
+              Icons.info,
+              const QRViewPage(),
             ),
           ],
         ),
