@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3, 
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -33,8 +33,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT,
         codigo TEXT UNIQUE,
-        cajas INTEGER DEFAULT 0,
-        identificador TEXT
+        cajas INTEGER DEFAULT 0
       )
     ''');
 
@@ -45,6 +44,15 @@ class DatabaseHelper {
         cantidad INTEGER,
         hora TEXT,
         FOREIGN KEY(trabajador_id) REFERENCES trabajadores(id)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE identificadores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trabajador_id INTEGER,
+        valor TEXT,
+        FOREIGN KEY(trabajador_id) REFERENCES trabajadores(id) ON DELETE CASCADE
       )
     ''');
   }
@@ -58,6 +66,17 @@ class DatabaseHelper {
           cantidad INTEGER,
           hora TEXT,
           FOREIGN KEY(trabajador_id) REFERENCES trabajadores(id)
+        )
+      ''');
+    }
+    
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS identificadores (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          trabajador_id INTEGER,
+          valor TEXT,
+          FOREIGN KEY(trabajador_id) REFERENCES trabajadores(id) ON DELETE CASCADE
         )
       ''');
     }
@@ -121,6 +140,8 @@ class DatabaseHelper {
 
   Future<int> deleteTrabajador(int id) async {
     final db = await instance.database;
+
+    await db.delete('identificadores', where: 'trabajador_id = ?', whereArgs: [id]);
 
     await db.delete('cajas_registro', where: 'trabajador_id = ?', whereArgs: [id]);
 
@@ -199,6 +220,7 @@ class DatabaseHelper {
 
   Future<void> clearAll() async {
     final db = await instance.database;
+    await db.delete('identificadores');
     await db.delete('cajas_registro');
     await db.delete('trabajadores');
   }
@@ -208,33 +230,75 @@ class DatabaseHelper {
     if (db != null) await db.close();
   }
 
-
   Future<Map<String, dynamic>?> buscarTrabajadorPorEtiqueta(String tagData) async {
     final db = await instance.database;
-    final result = await db.query(
-      'trabajadores',
-      where: 'identificador = ?',
-      whereArgs: [tagData],
-      limit: 1,
-    );
+
+    final result = await db.rawQuery('''
+      SELECT t.* FROM trabajadores t
+      INNER JOIN identificadores i ON t.id = i.trabajador_id
+      WHERE i.valor = ?
+      LIMIT 1
+    ''', [tagData]);
+    
     if (result.isNotEmpty) return result.first;
     return null;
   }
 
-  Future<void> agregarIdentificador(int id, String idf) async {
+  Future<void> agregarIdentificador(int trabajadorId, String idf) async {
     final db = await instance.database;
-    await db.update(
-      'trabajadores',
-      {'identificador': idf},
-      where: 'id = ?',
-      whereArgs: [id],
+    await db.insert('identificadores', {
+      'trabajador_id': trabajadorId,
+      'valor': idf,
+    });
+  }
+
+  Future<void> sumarCajas(int trabajadorId, int cantidad) async {
+    final db = await instance.database;
+
+    await db.insert('cajas_registro', {
+      'trabajador_id': trabajadorId,
+      'cantidad': cantidad,
+      'hora': DateTime.now().toIso8601String(),
+    });
+
+    await db.rawUpdate(
+      'UPDATE trabajadores SET cajas = cajas + ? WHERE id = ?',
+      [cantidad, trabajadorId],
     );
   }
 
-  Future<void> sumarCajas(int trabajadorId, int cantidad) async { 
-    final db = await instance.database; 
-    await db.rawUpdate(""" UPDATE trabajadores SET cajas = cajas + ? WHERE id = ? """, 
-    [cantidad, trabajadorId]); 
-    await db.insert('registros', { 'trabajador_id': trabajadorId, 'cantidad': cantidad, 'hora': 
-    DateTime.now().toString() }); }
+  Future<List<Map<String, dynamic>>> getAllDataForExport() async {
+    final db = await instance.database;
+
+    final trabajadores = await db.query('trabajadores', orderBy: 'nombre ASC');
+    
+    List<Map<String, dynamic>> dataExport = [];
+    
+    for (var trabajador in trabajadores) {
+      final id = trabajador['id'] as int;
+
+      final identificadores = await db.query(
+        'identificadores',
+        where: 'trabajador_id = ?',
+        whereArgs: [id],
+      );
+      
+      final ids = identificadores.map((i) => i['valor'].toString()).join(', ');
+
+      final registros = await db.query(
+        'cajas_registro',
+        where: 'trabajador_id = ?',
+        whereArgs: [id],
+        orderBy: 'hora DESC',
+      );
+      
+      dataExport.add({
+        'trabajador': trabajador,
+        'identificadores': ids,
+        'registros': registros,
+      });
+    }
+    
+    return dataExport;
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cherry_block/services/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:cherry_block/services/excelexport_service.dart';
 
 class QRViewPage extends StatefulWidget {
   const QRViewPage({super.key});
@@ -93,36 +94,24 @@ class _QRViewPageState extends State<QRViewPage> {
     final nuevo = {
       'nombre': nombre.trim(),
       'codigo': codigo.trim(),
-      'cajas': cajas,
+      'cajas': 0,
     };
 
     try {
       final id = await db.insertTrabajador(nuevo);
 
-      final ids = identificadoresCsv.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
-      for (final idf in ids) {
-        try {
-          await db.agregarIdentificador(id, idf);
-        } catch (e) {
-          debugPrint('No se pudo agregar identificador $idf: $e');
-        }
+      if (cajas > 0) {
+        await db.sumarCajas(id, cajas);  
       }
 
-      if (cajas > 0) {
-        try {
-          await db.sumarCajas(id, cajas);
-        } catch (_) {
-
+    
+      if (identificadoresCsv.isNotEmpty) {
+        final identificadores = identificadoresCsv.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+        for (final identificador in identificadores) {
           try {
-            final database = await db.database;
-            await database.insert('registros', {
-              'trabajador_id': id,
-              'cantidad': cajas,
-              'hora': DateTime.now().toIso8601String(),
-            });
-            await database.rawUpdate('UPDATE trabajadores SET cajas = cajas + ? WHERE id = ?', [cajas, id]);
+            await db.agregarIdentificador(id, identificador);
           } catch (e) {
-            debugPrint('Error registrando cajas (fallback): $e');
+            debugPrint('Error agregando identificador $identificador: $e');
           }
         }
       }
@@ -141,20 +130,9 @@ class _QRViewPageState extends State<QRViewPage> {
   Future<void> _addBoxesToExisting(int add) async {
     if (_currentWorker == null) return;
     final id = _currentWorker!['id'] as int;
+
     try {
-      // preferir sumarCajas si existe
-      try {
-        await db.sumarCajas(id, add);
-      } catch (_) {
-        // fallback
-        final database = await db.database;
-        await database.insert('registros', {
-          'trabajador_id': id,
-          'cantidad': add,
-          'hora': DateTime.now().toIso8601String(),
-        });
-        await database.rawUpdate('UPDATE trabajadores SET cajas = cajas + ? WHERE id = ?', [add, id]);
-      }
+      await db.sumarCajas(id, add); 
 
       final refreshed = await db.getTrabajadorByCodigo(_currentWorker!['codigo'] as String);
       setState(() {
@@ -168,6 +146,7 @@ class _QRViewPageState extends State<QRViewPage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al añadir cajas: $e')));
     }
   }
+
 
   Future<void> _desvincular(int id) async {
     try {
@@ -207,7 +186,6 @@ class _QRViewPageState extends State<QRViewPage> {
       setState(() => _filtered = results);
     } catch (e) {
       debugPrint('buscarTrabajadores no disponible: $e');
-      // fallback local
       setState(() {
         _filtered = _workers.where((w) {
           final nombre = (w['nombre'] ?? '').toString().toLowerCase();
@@ -475,7 +453,7 @@ class _QRViewPageState extends State<QRViewPage> {
             TextField(
               controller: identsCtrl,
               decoration: const InputDecoration(
-                labelText: 'Identificador(s) (separar por coma) - opcional',
+                labelText: 'Identificador',
                 hintText: 'ej: f23, f1',
               ),
             ),
@@ -542,18 +520,47 @@ class _QRViewPageState extends State<QRViewPage> {
                     itemCount: _filtered.length,
                     itemBuilder: (_, i) {
                       final w = _filtered[i];
-                      return Card(
-                        child: ListTile(
-                          title: Text(w['nombre'] ?? ''),
-                          subtitle: Text(w['codigo'] ?? ''),
-                          trailing: Text((w['cajas'] ?? 0).toString()),
-                          onTap: () => _showWorkerOptions(w),
-                        ),
+                      
+                      return FutureBuilder<List<String>>(
+                        future: _getIdentificadoresOf(w['id'] as int),
+                        builder: (context, snap) {
+                          final idfs = snap.data ?? [];
+                          final id = idfs.join(', '); 
+
+                          return Card(
+                          child: ListTile(
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  w['nombre'] ?? '',
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                                if (id.isNotEmpty) 
+                                  Text(
+                                    id,
+                                    style: const TextStyle(
+                                      fontSize: 12, 
+                                      color: Colors.grey,  
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            trailing: Text(
+                              (w['cajas'] ?? 0).toString(),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            onTap: () => _showWorkerOptions(w),
+                          ),
+                        );
+                        },
                       );
                     },
                   ),
                 ),
-        )
+        ),
+
+
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _startScanner,
@@ -584,7 +591,48 @@ class _QRViewPageState extends State<QRViewPage> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const _ProductionView()));
-              }),
+              }
+          ),
+          ListTile(
+            leading: const Icon(Icons.file_download),
+            title: const Text('Exportar a Excel'),
+            onTap: () async {
+              Navigator.pop(context);
+              
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+              
+              try {
+                await ExcelExportService.exportToExcel();
+                if (mounted) Navigator.pop(context);
+                
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Archivo Excel exportado exitosamente'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) Navigator.pop(context);
+                
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al exportar: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
           const Spacer(),
           ListTile(
             leading: const Icon(Icons.arrow_back),
@@ -597,7 +645,6 @@ class _QRViewPageState extends State<QRViewPage> {
   }
 }
 
-/// Pantalla simple de escaneo (Mobile Scanner)
 class _ScannerScreen extends StatefulWidget {
   const _ScannerScreen({super.key});
 
@@ -719,9 +766,9 @@ class _ProductionViewState extends State<_ProductionView> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Total cajas: $_totalBoxes', style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 8),
-          Text('Bins completos (24 cajas): $bins'),
+          Text('Bins completos: $bins'),
           const SizedBox(height: 8),
-          Text('Cajas restantes: $remainder'),
+          Text('Cajas extras: $remainder'),
         ]),
       ),
     );
