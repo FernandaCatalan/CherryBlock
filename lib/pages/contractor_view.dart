@@ -59,7 +59,7 @@ class _ContractorViewState extends State<ContractorView> {
                   ),
                 ),
               ),
-              Divider(color: colorScheme.onPrimary.withOpacity(0.3)),
+              Divider(color: colorScheme.onPrimary.withValues(alpha: 0.3)),
               Expanded(
                 child: ListView.builder(
                   itemCount: sections.length + 1,
