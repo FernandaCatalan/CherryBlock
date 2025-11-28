@@ -67,7 +67,7 @@ class _BossViewState extends State<BossView> {
                   ),
                 ),
               ),
-              Divider(color: colors.onPrimary.withOpacity(0.3)),
+              Divider(color: colors.onPrimary.withValues(alpha:0.3)),
               Expanded(
                 child: ListView.builder(
                   itemCount: sections.length + 1,
@@ -93,7 +93,7 @@ class _BossViewState extends State<BossView> {
                     } else {
                       return Column(
                         children: [
-                          Divider(color: colors.onPrimary.withOpacity(0.3)),
+                          Divider(color: colors.onPrimary.withValues(alpha:0.3)),
                           ListTile(
                             leading: Icon(Icons.arrow_back, color: colors.onPrimary),
                             title: Text(

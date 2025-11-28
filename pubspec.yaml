@@ -24,6 +24,8 @@ dependencies:
   url_launcher: ^6.3.2
   flutter_rating_bar: ^4.0.1
   icons_launcher: ^3.0.3
+  
+  ##firebase packages
   firebase_core: ^4.2.1
   firebase_auth: ^6.1.2
   cloud_firestore: ^6.1.0

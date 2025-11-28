@@ -58,7 +58,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                   ),
                 ),
               ),
-              Divider(color: colorScheme.onPrimary.withOpacity(0.3)),
+              Divider(color: colorScheme.onPrimary.withValues(alpha:0.3)),
               Expanded(
                 child: ListView.builder(
                   itemCount: sections.length + 1,
@@ -75,7 +75,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                         ),
                         selected: selectedIndex == index,
                         selectedTileColor:
-                            colorScheme.secondary.withOpacity(0.3),
+                            colorScheme.secondary.withValues(alpha:0.3),
                         onTap: () {
                           setState(() => selectedIndex = index);
                           Navigator.pop(context);
@@ -84,7 +84,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                     } else {
                       return Column(
                         children: [
-                          Divider(color: colorScheme.onPrimary.withOpacity(0.3)),
+                          Divider(color: colorScheme.onPrimary.withValues(alpha:0.3)),
                           ListTile(
                             leading: Icon(Icons.arrow_back,
                                 color: colorScheme.onPrimary),
