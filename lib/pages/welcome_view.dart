@@ -32,7 +32,7 @@ class _WelcomeViewState extends State<WelcomeView>
 
     _controller.forward();
 
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => widget.nextPage),
       );

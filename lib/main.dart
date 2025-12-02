@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -8,12 +9,16 @@ import 'package:cherry_block/provider/theme_provider.dart';
 import 'pages/splash_screen.dart';
 import 'provider/app_preferences_provider.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp();
+  
   final prefs = await SharedPreferences.getInstance();
   final order = prefs.getString('order') ?? 'Recientes primero';
   final language = prefs.getString('language') ?? 'Español';
+
 
   runApp(
     MultiProvider(
@@ -21,7 +26,10 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppPreferencesProvider()),
       ],
-      child: const MyApp(),
+      child: MyApp(
+        initialOrder: order,
+        initialLanguage: language,
+      )
     ),
   );
 }
@@ -48,6 +56,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late String order;
   late String language;
 
+  //inicialiación de estado
   @override
   void initState() {
     super.initState();

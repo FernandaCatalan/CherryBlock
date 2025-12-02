@@ -1,59 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cherry_block/pages/home.dart';
-
-void main() {
-  runApp(const CherryBlockApp());
-}
-
-class CherryBlockApp extends StatelessWidget {
-  const CherryBlockApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cherry Block',
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system, 
-      theme: ThemeData(
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFFB22222),
-          onPrimary: Colors.white,
-          surface: Color(0xFFF5E9DA),
-          onSurface: Colors.black,
-          secondary: Color(0xFF8B1A1A),
-        ),
-        textTheme: GoogleFonts.interTextTheme().copyWith(
-          bodyLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          bodyMedium: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          titleLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFF6F91), 
-          onPrimary: Colors.white,
-          surface: Color(0xFF1E1E1E),
-          onSurface: Color(0xFFF5E9DA),
-          secondary: Color(0xFFFFB3C6),
-        ),
-        textTheme: GoogleFonts.interTextTheme().copyWith(
-          bodyLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          bodyMedium: GoogleFonts.inter(fontWeight: FontWeight.bold),
-          titleLarge: GoogleFonts.inter(fontWeight: FontWeight.bold),
-        ),
-      ),
-      home: const SplashScreen(),
-    );
-  }
-}
+import 'package:cherry_block/pages/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen>
@@ -65,18 +20,28 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 6));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     _controller.forward();
 
     Timer(const Duration(seconds: 6), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(title: 'Cherry Block'),
-        ),
-      );
+      _checkAuthAndNavigate();
     });
+  }
+
+  void _checkAuthAndNavigate() {
+    final user = FirebaseAuth.instance.currentUser;
+    
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => user != null
+            ? const HomeScreen(title: 'Cherry Block')
+            : const LoginScreen(),
+      ),
+    );
   }
 
   @override

@@ -213,7 +213,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
     );
   }
 
-  /// 🔹 Leer NFC y verificar si ya existe en la base de datos
+  /// Leer NFC y verificar si ya existe en la base de datos
   Future<void> _leerNfc() async {
     setState(() {
       _isLoading = true;
@@ -225,7 +225,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
       final tagData = await _nfcService.readNfcTag();
 
       if (tagData != null && !(tagData.contains("no disponible"))) {
-        // 🔍 Buscar si ya existe
+        // Buscar si ya existe
         final existing = await _db.buscarTrabajadorPorEtiqueta(tagData);
 
         setState(() {
@@ -246,7 +246,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
     }
   }
 
-  /// 🔹 Guardar o actualizar datos
+  /// Guardar o actualizar datos
   Future<void> _guardarDatos() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     _formKey.currentState!.save();
@@ -254,7 +254,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
     final esExistente = _existingWorker != null;
 
     if (esExistente) {
-      // 🔄 Solo actualizar cantidad de cajas
+      // Solo actualizar cantidad de cajas
       final updated = {
         "id": _existingWorker!["id"],
         "nombre": _existingWorker!["nombre"],
@@ -265,7 +265,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
       };
       await _db.updateTrabajador(updated);
     } else {
-      // 🆕 Nuevo registro
+      // Nuevo registro
       final nuevo = {
         "nombre": _nombre,
         "codigo": _codigo,
