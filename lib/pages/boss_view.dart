@@ -1,8 +1,14 @@
+import 'package:cherry_block/pages/login_screen.dart';
+import 'package:cherry_block/pages/register_screen.dart';
+import 'package:cherry_block/pages/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'worker.dart';
 import 'contractor.dart';
 import 'workers_details.dart';
 import 'contractor_details.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class BossView extends StatefulWidget {
   const BossView({super.key});
@@ -93,16 +99,39 @@ class _BossViewState extends State<BossView> {
                     } else {
                       return Column(
                         children: [
-                          Divider(color: colors.onPrimary.withValues(alpha:0.3)),
+                          Divider(color: colors.onPrimary.withValues(alpha: 0.3)),
+
                           ListTile(
-                            leading: Icon(Icons.arrow_back, color: colors.onPrimary),
+                            leading: Icon(Icons.logout, color: colors.onPrimary),
                             title: Text(
-                              "Volver al Home",
+                              "Cerrar sesión",
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: colors.onPrimary,
                               ),
                             ),
-                            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
+                            onTap: () async {
+                              await FirebaseAuth.instance.signOut();
+                              if (context.mounted) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                  (route) => false,
+                                );
+                              }
+                            },
+                          ),
+
+                          ListTile(
+                            leading: Icon(Icons.exit_to_app, color: colors.onPrimary),
+                            title: Text(
+                              "Cerrar aplicación",
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: colors.onPrimary,
+                              ),
+                            ),
+                            onTap: () {
+                              SystemNavigator.pop();  
+                            },
                           ),
                         ],
                       );

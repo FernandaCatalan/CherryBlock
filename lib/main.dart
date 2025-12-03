@@ -3,33 +3,43 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'provider/auth_provider.dart';
+
 import 'package:cherry_block/theme/util.dart';
 import 'package:cherry_block/theme/theme.dart';
 import 'package:cherry_block/provider/theme_provider.dart';
-import 'pages/splash_screen.dart';
 import 'provider/app_preferences_provider.dart';
 
+import 'pages/splash_screen.dart';
+import 'pages/login_screen.dart';
+
+import 'pages/boss_view.dart';
+import 'pages/contractor_view.dart';
+import 'pages/cuadrilla_view.dart';
+import 'pages/packing_view.dart';
+import 'pages/planillero_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
-  
+
   final prefs = await SharedPreferences.getInstance();
   final order = prefs.getString('order') ?? 'Recientes primero';
   final language = prefs.getString('language') ?? 'Español';
-
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AppPreferencesProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()), 
       ],
       child: MyApp(
         initialOrder: order,
         initialLanguage: language,
-      )
+      ),
     ),
   );
 }
@@ -56,7 +66,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late String order;
   late String language;
 
-  //inicialiación de estado
   @override
   void initState() {
     super.initState();
@@ -100,3 +109,50 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 }
+
+class RoleRouter extends StatelessWidget {
+  const RoleRouter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
+    if (!auth.isAuthenticated) {
+      return const SplashScreen();
+    }
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('users')
+          .doc(auth.user!.uid)
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SplashScreen();
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const LoginScreen();
+        }
+
+        final role = snapshot.data!.get('rol') ?? 'none';
+
+        switch (role) {
+          case 'dueño':
+            return const BossView();
+          case 'jefe_cuadrilla':
+            return const CuadrillaView();
+          case 'jefe_packing':
+            return const PackingView();
+          case 'contratista':
+            return const ContractorView();
+          case 'planillero':
+            return const PlanilleroView();
+          default:
+            return const LoginScreen();
+        }
+      },
+    );
+  }
+}
+

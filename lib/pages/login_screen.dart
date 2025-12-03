@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'register_screen.dart';
 import 'home.dart';
+import 'splash_screen.dart';
+import '../services/roleredirect.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,13 +37,18 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
 
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => const HomeScreen(title: 'Cherry Block'),
-          ),
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null && mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const RoleRedirectScreen()),
+          (route) => false,
         );
       }
+
     } on FirebaseAuthException catch (e) {
       String message = 'Error al iniciar sesión';
 

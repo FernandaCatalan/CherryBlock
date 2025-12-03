@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cherry_block/pages/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cherry_block/pages/boss_view.dart';
+import 'package:cherry_block/pages/cuadrilla_view.dart';
+import 'package:cherry_block/pages/packing_view.dart';
+import 'package:cherry_block/pages/contractor_view.dart';
+import 'package:cherry_block/pages/planillero_view.dart';
 import 'package:cherry_block/pages/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,8 +18,11 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+
   late AnimationController _controller;
   late Animation<double> _animation;
+
+  Timer? _splashTimer; 
 
   @override
   void initState() {
@@ -24,28 +32,86 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 6),
     );
+
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     _controller.forward();
 
-    Timer(const Duration(seconds: 6), () {
-      _checkAuthAndNavigate();
+    _splashTimer = Timer(const Duration(seconds: 6), () async {
+      if (mounted) {
+        await _checkAuthAndNavigate();
+      }
     });
   }
 
-  void _checkAuthAndNavigate() {
+  Future<void> _checkAuthAndNavigate() async {
+    _splashTimer?.cancel();
+
+    await Future.delayed(const Duration(milliseconds: 400));
+
     final user = FirebaseAuth.instance.currentUser;
-    
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => user != null
-            ? const HomeScreen(title: 'Cherry Block')
-            : const LoginScreen(),
-      ),
+
+    if (user == null) {
+      _goToLogin();
+      return;
+    }
+
+    final doc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .get();
+
+    if (!doc.exists || !doc.data()!.containsKey("rol")) {
+      _goToLogin();
+      return;
+    }
+
+    final String rol = doc["rol"];
+    Widget destino;
+
+    switch (rol) {
+      case "dueño":
+        destino = const BossView();
+        break;
+      case "jefe_cuadrilla":
+        destino = const CuadrillaView();
+        break;
+      case "jefe_packing":
+        destino = const PackingView();
+        break;
+      case "contratista":
+        destino = const ContractorView();
+        break;
+      case "planillero":
+        destino = const PlanilleroView();
+        break;
+      default:
+        destino = const LoginScreen();
+    }
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => destino),
     );
+  }
+
+
+  void _goToLogin() {
+    if (!mounted) return;
+
+    Future.microtask(() {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    });
   }
 
   @override
   void dispose() {
+    _splashTimer?.cancel();   
     _controller.dispose();
     super.dispose();
   }

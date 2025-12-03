@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/services/database_helper.dart'; // Asegúrate de que esta ruta sea correcta
+import '/services/database_helper.dart'; 
 
 class ContractorView extends StatefulWidget {
   const ContractorView({super.key});
