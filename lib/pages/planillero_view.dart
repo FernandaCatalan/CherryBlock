@@ -3,6 +3,11 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cherry_block/services/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:cherry_block/services/excelexport_service.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cherry_block/pages/login_screen.dart';
+import 'package:cherry_block/pages/register_screen.dart';
+import 'package:cherry_block/pages/splash_screen.dart';
 
 class PlanilleroView extends StatefulWidget {
   const PlanilleroView({super.key});
@@ -104,7 +109,6 @@ class _PlanilleroViewState extends State<PlanilleroView> {
         await db.sumarCajas(id, cajas);  
       }
 
-    
       if (identificadoresCsv.isNotEmpty) {
         final identificadores = identificadoresCsv.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
         for (final identificador in identificadores) {
@@ -146,7 +150,6 @@ class _PlanilleroViewState extends State<PlanilleroView> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al añadir cajas: $e')));
     }
   }
-
 
   Future<void> _desvincular(int id) async {
     try {
@@ -197,23 +200,27 @@ class _PlanilleroViewState extends State<PlanilleroView> {
   }
 
   void _showWorkerOptions(Map<String, dynamic> w) async {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    
     showModalBottomSheet(
       context: context,
+      backgroundColor: colors.surface,
       builder: (_) {
         return SafeArea(
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.link_off),
-                title: const Text('Desvincular QR'),
+                leading: Icon(Icons.link_off, color: colors.primary),
+                title: Text('Desvincular QR', style: theme.textTheme.bodyLarge),
                 onTap: () async {
                   Navigator.pop(context);
                   await _desvincular(w['id'] as int);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.history),
-                title: const Text('Ver historial de cajas'),
+                leading: Icon(Icons.history, color: colors.primary),
+                title: Text('Ver historial de cajas', style: theme.textTheme.bodyLarge),
                 onTap: () async {
                   Navigator.pop(context);
                   final regs = await db.getRegistrosByTrabajador(w['id'] as int);
@@ -235,7 +242,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                                     title: Text('${r['cantidad']} cajas'),
                                     subtitle: Text(r['hora'] ?? ''),
                                     trailing: IconButton(
-                                      icon: const Icon(Icons.delete_forever),
+                                      icon: Icon(Icons.delete_forever, color: colors.error),
                                       onPressed: () async {
                                         await db.deleteCajaRegistro(r['id'] as int);
                                         Navigator.pop(context);
@@ -251,24 +258,24 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.add),
-                title: const Text('Agregar identificador'),
+                leading: Icon(Icons.add, color: colors.primary),
+                title: Text('Agregar identificador', style: theme.textTheme.bodyLarge),
                 onTap: () {
                   Navigator.pop(context);
                   _promptAddIdentificador(w['id'] as int);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.remove_circle),
-                title: const Text('Quitar cajas (1/2/3)'),
+                leading: Icon(Icons.remove_circle, color: colors.primary),
+                title: Text('Quitar cajas (1/2/3)', style: theme.textTheme.bodyLarge),
                 onTap: () {
                   Navigator.pop(context);
                   _promptRemoveBoxes(w);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete_forever),
-                title: const Text('Eliminar cosechero'),
+                leading: Icon(Icons.delete_forever, color: colors.error),
+                title: Text('Eliminar cosechero', style: theme.textTheme.bodyLarge),
                 onTap: () async {
                   Navigator.pop(context);
                   final ok = await showDialog<bool>(
@@ -278,7 +285,10 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                       content: const Text('¿Eliminar este cosechero y su historial?'),
                       actions: [
                         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true), 
+                          child: Text('Eliminar', style: TextStyle(color: colors.error)),
+                        ),
                       ],
                     ),
                   );
@@ -375,6 +385,9 @@ class _PlanilleroViewState extends State<PlanilleroView> {
   }
 
   Widget _buildScannedCard() {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    
     if (_scannedCode == null) return const SizedBox.shrink();
 
     if (_currentWorker != null) {
@@ -388,32 +401,35 @@ class _PlanilleroViewState extends State<PlanilleroView> {
           final idfs = snap.data ?? [];
           return Card(
             margin: const EdgeInsets.all(12),
+            color: colors.surfaceContainerHighest,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(name, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
-                Text('Código: $codigo'),
+                Text('Código: $codigo', style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 6),
                 if (idfs.isNotEmpty) ...[
-                  const Text('Identificadores:', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Text('Identificadores:', style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Wrap(
                     spacing: 8,
-                    children: idfs.map((i) => Chip(label: Text(i))).toList(),
+                    children: idfs.map((i) => Chip(
+                      label: Text(i),
+                      backgroundColor: colors.secondaryContainer,
+                    )).toList(),
                   ),
                   const SizedBox(height: 6),
                 ],
-                Text('Cajas hasta el momento: $cajas'),
+                Text('Cajas hasta el momento: $cajas', style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 12),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     ElevatedButton(onPressed: () => _addBoxesToExisting(1), child: const Text('+1')),
-                    const SizedBox(width: 8),
                     ElevatedButton(onPressed: () => _addBoxesToExisting(2), child: const Text('+2')),
-                    const SizedBox(width: 8),
                     ElevatedButton(onPressed: () => _addBoxesToExisting(3), child: const Text('+3')),
-                    const SizedBox(width: 8),
                     OutlinedButton(
                         onPressed: () {
                           setState(() {
@@ -421,8 +437,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                             _currentWorker = null;
                           });
                         },
-                        child: const Text('0')),
-                    const SizedBox(width: 12),
+                        child: const Text('Cancelar')),
                     ElevatedButton(
                       onPressed: () => _promptAddIdentificador(_currentWorker!['id'] as int),
                       child: const Text('Agregar id'),
@@ -441,10 +456,11 @@ class _PlanilleroViewState extends State<PlanilleroView> {
 
       return Card(
         margin: const EdgeInsets.all(12),
+        color: colors.surfaceContainerHighest,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Nuevo cosechero', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Nuevo cosechero', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             TextField(controller: nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre')),
             const SizedBox(height: 8),
@@ -458,16 +474,16 @@ class _PlanilleroViewState extends State<PlanilleroView> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 ElevatedButton(
                     onPressed: () => _saveNewWorker(nombreCtrl.text.trim(), codigoCtrl.text.trim(), identsCtrl.text.trim(), 1),
                     child: const Text('1')),
-                const SizedBox(width: 8),
                 ElevatedButton(
                     onPressed: () => _saveNewWorker(nombreCtrl.text.trim(), codigoCtrl.text.trim(), identsCtrl.text.trim(), 2),
                     child: const Text('2')),
-                const SizedBox(width: 8),
                 ElevatedButton(
                     onPressed: () => _saveNewWorker(nombreCtrl.text.trim(), codigoCtrl.text.trim(), identsCtrl.text.trim(), 3),
                     child: const Text('3')),
@@ -491,9 +507,20 @@ class _PlanilleroViewState extends State<PlanilleroView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cosecheros'),
+        backgroundColor: colors.primary,
+        title: Text(
+          'Cosecheros',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colors.onPrimary,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: IconThemeData(color: colors.onPrimary),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -507,7 +534,7 @@ class _PlanilleroViewState extends State<PlanilleroView> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: _buildDrawer(context, theme, colors),
       body: Column(children: [
         if (_scannedCode != null) _buildScannedCard(),
         Expanded(
@@ -525,77 +552,102 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                         future: _getIdentificadoresOf(w['id'] as int),
                         builder: (context, snap) {
                           final idfs = snap.data ?? [];
-                          final id = idfs.join(', '); 
+                          final id = idfs.join(', ');
 
                           return Card(
-                          child: ListTile(
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  w['nombre'] ?? '',
-                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                if (id.isNotEmpty) 
+                            child: ListTile(
+                              leading: Icon(Icons.person, color: colors.primary),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    id,
-                                    style: const TextStyle(
-                                      fontSize: 12, 
-                                      color: Colors.grey,  
+                                    w['nombre'] ?? '',
+                                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  if (id.isNotEmpty) 
+                                    Text(
+                                      id,
+                                      style: theme.textTheme.bodySmall?.copyWith(color: colors.outline),
+                                    ),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    (w['cajas'] ?? 0).toString(),
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: colors.primary,
                                     ),
                                   ),
-                              ],
+                                  const SizedBox(width: 8),
+                                  Icon(Icons.arrow_forward_ios, color: colors.outline),
+                                ],
+                              ),
+                              onTap: () => _showWorkerOptions(w),
                             ),
-                            trailing: Text(
-                              (w['cajas'] ?? 0).toString(),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            onTap: () => _showWorkerOptions(w),
-                          ),
-                        );
+                          );
                         },
                       );
                     },
                   ),
                 ),
         ),
-
-
       ]),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _startScanner,
         icon: const Icon(Icons.qr_code_scanner),
         label: const Text('Escanear QR'),
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
       ),
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget _buildDrawer(BuildContext context, ThemeData theme, ColorScheme colors) {
     return Drawer(
+      backgroundColor: colors.primary,
       child: SafeArea(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('CHERRY BLOCK', style: theme.textTheme.titleLarge),
+            child: Text(
+              'CHERRY BLOCK',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.onPrimary,
+              ),
+            ),
           ),
-          const Divider(),
+          Divider(color: colors.onPrimary.withValues(alpha: 0.3)),
           ListTile(
-            leading: const Icon(Icons.group),
-            title: const Text('Cosecheros'),
+            leading: Icon(Icons.circle, color: colors.onPrimary, size: 12),
+            title: Text(
+              'Cosecheros',
+              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onPrimary),
+            ),
+            selected: true,
+            selectedTileColor: colors.secondaryContainer,
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
-              leading: const Icon(Icons.bar_chart),
-              title: const Text('Producción diaria'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const _ProductionView()));
-              }
+            leading: Icon(Icons.circle, color: colors.onPrimary, size: 12),
+            title: Text(
+              'Producción diaria',
+              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onPrimary),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const _ProductionView()));
+            }
           ),
           ListTile(
-            leading: const Icon(Icons.file_download),
-            title: const Text('Exportar a Excel'),
+            leading: Icon(Icons.circle, color: colors.onPrimary, size: 12),
+            title: Text(
+              'Exportar a Excel',
+              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onPrimary),
+            ),
             onTap: () async {
               Navigator.pop(context);
               
@@ -609,9 +661,9 @@ class _PlanilleroViewState extends State<PlanilleroView> {
               
               try {
                 await ExcelExportService.exportToExcel(_workers);
-                if (mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
                 
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Archivo Excel exportado exitosamente'),
@@ -620,9 +672,9 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                   );
                 }
               } catch (e) {
-                if (mounted) Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
                 
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Error al exportar: $e'),
@@ -634,10 +686,38 @@ class _PlanilleroViewState extends State<PlanilleroView> {
             },
           ),
           const Spacer(),
+          Divider(color: colors.onPrimary.withValues(alpha: 0.3)),
           ListTile(
-            leading: const Icon(Icons.arrow_back),
-            title: const Text('Volver al menú'),
-            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
+            leading: Icon(Icons.logout, color: colors.onPrimary),
+            title: Text(
+              "Cerrar sesión",
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onPrimary,
+                ),
+              ),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+          ),
+
+          ListTile(
+            leading: Icon(Icons.exit_to_app, color: colors.onPrimary),
+            title: Text(
+              "Cerrar aplicación",
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onPrimary,
+              ),
+            ),
+            onTap: () {
+              SystemNavigator.pop();  
+            },
           ),
         ]),
       ),
@@ -756,19 +836,32 @@ class _ProductionViewState extends State<_ProductionView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final bins = _totalBoxes ~/ 24;
     final remainder = _totalBoxes % 24;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Producción diaria')),
+      appBar: AppBar(
+        backgroundColor: colors.primary,
+        title: Text(
+          'Producción diaria',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colors.onPrimary,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: IconThemeData(color: colors.onPrimary),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Total cajas: $_totalBoxes', style: const TextStyle(fontSize: 18)),
+          Text('Total cajas: $_totalBoxes', style: theme.textTheme.headlineSmall?.copyWith(color: colors.primary)),
           const SizedBox(height: 8),
-          Text('Bins completos: $bins'),
+          Text('Bins completos: $bins', style: theme.textTheme.bodyLarge),
           const SizedBox(height: 8),
-          Text('Cajas extras: $remainder'),
+          Text('Cajas extras: $remainder', style: theme.textTheme.bodyLarge),
         ]),
       ),
     );
