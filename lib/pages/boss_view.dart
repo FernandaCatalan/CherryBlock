@@ -1,4 +1,5 @@
 import 'package:cherry_block/pages/login_screen.dart';
+import 'package:cherry_block/pages/preferences_view.dart';
 import 'package:cherry_block/pages/register_screen.dart';
 import 'package:cherry_block/pages/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -100,6 +101,26 @@ class _BossViewState extends State<BossView> {
                       return Column(
                         children: [
                           Divider(color: colors.onPrimary.withValues(alpha: 0.3)),
+
+                          ListTile(
+                            leading: Icon(Icons.settings, color: colors.onPrimary),
+                            title: Text(
+                              "Ajustes",
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: colors.onPrimary,
+                              ),
+                            ),
+                            onTap: () async {
+                              await FirebaseAuth.instance.signOut();
+                              if (context.mounted) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const PreferencesView()),
+                                  (route) => false,
+                                );
+                              }
+                            },
+                          ),
 
                           ListTile(
                             leading: Icon(Icons.logout, color: colors.onPrimary),

@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cherry_block/pages/login_screen.dart';
 import 'package:cherry_block/pages/register_screen.dart';
 import 'package:cherry_block/pages/splash_screen.dart';
+import 'package:cherry_block/pages/preferences_view.dart';
 
 class PlanilleroView extends StatefulWidget {
   const PlanilleroView({super.key});
@@ -687,6 +688,26 @@ class _PlanilleroViewState extends State<PlanilleroView> {
           ),
           const Spacer(),
           Divider(color: colors.onPrimary.withValues(alpha: 0.3)),
+          ListTile(
+            leading: Icon(Icons.settings, color: colors.onPrimary),
+            title: Text(
+              "Ajustes",
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onPrimary,
+              ),
+            ),
+            onTap: () async {
+              await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PreferencesView()),
+                  (route) => false,
+                );
+              }
+            },
+          ),
+
           ListTile(
             leading: Icon(Icons.logout, color: colors.onPrimary),
             title: Text(

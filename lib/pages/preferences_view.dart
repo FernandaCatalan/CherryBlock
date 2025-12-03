@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cherry_block/provider/theme_provider.dart';
 import 'package:cherry_block/provider/app_preferences_provider.dart';
+import 'package:cherry_block/pages/boss_view.dart';
+import 'package:cherry_block/pages/contractor_view.dart';
+import 'package:cherry_block/pages/cuadrilla_view.dart';
+import 'package:cherry_block/pages/packing_view.dart';
+import 'package:cherry_block/pages/planillero_view.dart';
 
 class PreferencesView extends StatefulWidget {
   const PreferencesView({super.key});
@@ -32,10 +39,80 @@ class _PreferencesViewState extends State<PreferencesView> {
     await prefs.setString('unit', value);
   }
 
+  Future<void> goBackToRoleHome(BuildContext context) async {
+    print("DEBUG: goBackToRoleHome() llamado");
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) { 
+      print("DEBUG: No hay usuario logeado");
+      return;
+    }
+
+    print("DEBUG: UID actual: ${user.uid}");
+
+    final doc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .get();
+
+    if (!doc.exists) {
+      print("DEBUG: El documento del usuario NO existe en Firestore");
+      return;
+    }
+
+    if (!doc.data()!.containsKey("role")) {
+      print("DEBUG: El campo 'role' NO existe en Firestore");
+      return;
+    }
+
+    final role = doc.get("role");
+    print("DEBUG: Rol encontrado: $role");
+
+    Widget target;
+
+    switch (role) {
+      case "dueño":
+        target = const BossView();
+        break;
+      case "contratista":
+        target = const ContractorView();
+        break;
+      case "jefe_cuadrilla":
+        target = const CuadrillaView();
+        break;
+      case "jefe_packing":
+        target = const PackingView();
+        break;
+      case "planillero":
+        target = const PlanilleroView();
+        break;
+
+      default:
+        print("DEBUG: Rol desconocido");
+        return;
+    }
+
+    print("DEBUG: Navegando al Home del rol...");
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => target),
+      (route) => false,
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final appPrefs = Provider.of<AppPreferencesProvider>(context);
+    final user = FirebaseAuth.instance.currentUser;
+    print("DEBUG: Usuario actual en PreferencesView: $user");
+
+
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -96,6 +173,18 @@ class _PreferencesViewState extends State<PreferencesView> {
                 if (value != null) appPrefs.setLanguage(value);
               },
             ),
+          ),
+
+          ListTile(
+            leading: Icon(Icons.arrow_back, color: colorScheme.primary),
+            title: Text(
+              "Volver atrás",
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () => goBackToRoleHome(context),
           ),
         ],
       ),
