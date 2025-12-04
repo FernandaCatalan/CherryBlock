@@ -6,8 +6,6 @@ import 'package:cherry_block/services/excelexport_service.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cherry_block/pages/login_screen.dart';
-import 'package:cherry_block/pages/register_screen.dart';
-import 'package:cherry_block/pages/splash_screen.dart';
 import 'package:cherry_block/pages/preferences_view.dart';
 
 class PlanilleroView extends StatefulWidget {

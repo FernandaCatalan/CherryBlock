@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register_screen.dart';
-import 'home.dart';
-import 'splash_screen.dart';
 import '../services/roleredirect.dart';
 
 class LoginScreen extends StatefulWidget {
