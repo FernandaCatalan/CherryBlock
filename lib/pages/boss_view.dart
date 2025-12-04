@@ -9,6 +9,7 @@ import 'workers_details.dart';
 import 'contractor_details.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'roles_editor_view.dart';
 
 
 class BossView extends StatefulWidget {
@@ -101,6 +102,21 @@ class _BossViewState extends State<BossView> {
                       return Column(
                         children: [
                           Divider(color: colors.onPrimary.withValues(alpha: 0.3)),
+                          ListTile(
+                            leading: Icon(Icons.manage_accounts, color: colors.onPrimary),
+                            title: Text(
+                              "Editar Roles",
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: colors.onPrimary,
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const RolesEditorView()),
+                              );
+                            },
+                          ),
 
                           ListTile(
                             leading: Icon(Icons.settings, color: colors.onPrimary),
