@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'register_screen.dart';
 import 'home.dart';
 import 'splash_screen.dart';
@@ -18,6 +19,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _auth = FirebaseAuth.instance;
   bool _isLoading = false;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberMe();
+  }
+
+  Future<void> _loadRememberMe() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _rememberMe = prefs.getBool('remember_me') ?? false;
+    });
+  }
 
   @override
   void dispose() {
@@ -36,6 +51,15 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('remember_me', _rememberMe);
+
+      if (!_rememberMe) {
+        await prefs.setBool('is_logged_in', false);
+      } else {
+        await prefs.setBool('is_logged_in', true);
+      }
 
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -135,7 +159,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 16),
+
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _rememberMe,
+                        onChanged: (value) {
+                          setState(() {
+                            _rememberMe = value ?? false;
+                          });
+                        },
+                      ),
+                      const Text('Recuérdame'),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
 
                   ElevatedButton(
                     onPressed: _isLoading ? null : _login,

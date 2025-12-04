@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home.dart';
+import '../services/roleredirect.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -40,10 +40,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       await userCredential.user?.updateDisplayName(_nameController.text.trim());
 
+      try {
+        await userCredential.user?.sendEmailVerification();
+      } catch (e) {
+        print('Error al enviar correo de verificación: $e');
+      }
+
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => const HomeScreen(title: 'Cherry Block'),
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('¡Registro exitoso!'),
+            content: const Text(
+              'Tu cuenta ha sido creada exitosamente. '
+              'Se ha enviado un correo de bienvenida a tu dirección de email.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const RoleRedirectScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Continuar'),
+              ),
+            ],
           ),
         );
       }

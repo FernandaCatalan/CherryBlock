@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cherry_block/pages/boss_view.dart';
 import 'package:cherry_block/pages/cuadrilla_view.dart';
 import 'package:cherry_block/pages/packing_view.dart';
@@ -22,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  Timer? _splashTimer; 
+  Timer? _splashTimer;
 
   @override
   void initState() {
@@ -48,9 +49,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     await Future.delayed(const Duration(milliseconds: 400));
 
+    final prefs = await SharedPreferences.getInstance();
+    final rememberMe = prefs.getBool('remember_me') ?? false;
+
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) {
+    if (user == null || !rememberMe) {
+      if (user != null && !rememberMe) {
+        await FirebaseAuth.instance.signOut();
+      }
       _goToLogin();
       return;
     }
@@ -96,7 +103,6 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-
   void _goToLogin() {
     if (!mounted) return;
 
@@ -111,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _splashTimer?.cancel();   
+    _splashTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
