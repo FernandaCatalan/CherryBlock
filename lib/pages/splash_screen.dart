@@ -49,15 +49,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     await Future.delayed(const Duration(milliseconds: 400));
 
-    final prefs = await SharedPreferences.getInstance();
-    final rememberMe = prefs.getBool('remember_me') ?? false;
-
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null || !rememberMe) {
-      if (user != null && !rememberMe) {
-        await FirebaseAuth.instance.signOut();
-      }
+    if (user == null) {
       _goToLogin();
       return;
     }
@@ -67,15 +61,16 @@ class _SplashScreenState extends State<SplashScreen>
         .doc(user.uid)
         .get();
 
-    if (!doc.exists || !doc.data()!.containsKey("rol")) {
+    if (!doc.exists || !doc.data()!.containsKey("role")) {
       _goToLogin();
       return;
     }
 
-    final String rol = doc["rol"];
+    final String role = doc["role"];
+
     Widget destino;
 
-    switch (rol) {
+    switch (role) {
       case "dueño":
         destino = const BossView();
         break;
@@ -102,6 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
       MaterialPageRoute(builder: (_) => destino),
     );
   }
+
 
   void _goToLogin() {
     if (!mounted) return;
