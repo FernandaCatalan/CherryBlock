@@ -29,6 +29,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _rememberMe = prefs.getBool('remember_me') ?? false;
+
+      if (_rememberMe) {
+        _emailController.text = prefs.getString('saved_email') ?? '';
+        _passwordController.text = prefs.getString('saved_password') ?? '';
+      }
     });
   }
 
@@ -47,16 +52,21 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
-        password: _passwordController.text,
+        password: _passwordController.text.trim(),
       );
 
       final prefs = await SharedPreferences.getInstance();
+
       await prefs.setBool('remember_me', _rememberMe);
 
-      if (!_rememberMe) {
-        await prefs.setBool('is_logged_in', false);
+      if (_rememberMe) {
+        await prefs.setBool('is_logged_in', true);
+        await prefs.setString('saved_email', _emailController.text.trim());
+        await prefs.setString('saved_password', _passwordController.text.trim());
       } else {
         await prefs.setBool('is_logged_in', true);
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
       }
 
       await Future.delayed(const Duration(milliseconds: 500));
