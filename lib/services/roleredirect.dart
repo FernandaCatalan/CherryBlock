@@ -7,11 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:cherry_block/pages/boss_view.dart';
-import 'package:cherry_block/pages/cuadrilla_view.dart';
-import 'package:cherry_block/pages/packing_view.dart';
-import 'package:cherry_block/pages/contractor_view.dart';
-import 'package:cherry_block/pages/planillero_view.dart';
+
 
 class RoleRedirectScreen extends StatelessWidget {
   const RoleRedirectScreen({super.key});

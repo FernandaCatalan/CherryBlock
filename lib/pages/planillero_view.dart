@@ -543,8 +543,12 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                   onRefresh: _loadWorkers,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(8),
-                    itemCount: _filtered.length,
+                    itemCount: _filtered.length + 1,
                     itemBuilder: (_, i) {
+                      if (i == _filtered.length) {
+                        return const SizedBox(height: 100);
+                      }
+                      
                       final w = _filtered[i];
                       
                       return FutureBuilder<List<String>>(
@@ -694,15 +698,11 @@ class _PlanilleroViewState extends State<PlanilleroView> {
                 color: colors.onPrimary,
               ),
             ),
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PreferencesView()),
-                  (route) => false,
-                );
-              }
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PreferencesView()),
+              );
             },
           ),
 

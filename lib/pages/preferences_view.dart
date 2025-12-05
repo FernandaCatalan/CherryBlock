@@ -184,7 +184,7 @@ class _PreferencesViewState extends State<PreferencesView> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            onTap: () => goBackToRoleHome(context),
+            onTap: () => Navigator.pop(context),
           ),
         ],
       ),

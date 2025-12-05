@@ -126,15 +126,11 @@ class _BossViewState extends State<BossView> {
                                 color: colors.onPrimary,
                               ),
                             ),
-                            onTap: () async {
-                              await FirebaseAuth.instance.signOut();
-                              if (context.mounted) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const PreferencesView()),
-                                  (route) => false,
-                                );
-                              }
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const PreferencesView()),
+                              );
                             },
                           ),
 
