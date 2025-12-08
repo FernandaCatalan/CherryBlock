@@ -1,7 +1,7 @@
 
 # CherryBlock
 
-Aplicación para la gestión completa de cosecha de cerezas con distintos tipo de usuarios y funcionalidades especificas para cada rol. Permite registrar la producción de los cosecheros mediante NFCs únicos, controlar el avance de los cuarteles e hileras cosechadas, llevar un seguimiento de cajas y bins, realizar inspecciones en packing y entregar reportes claros a los dueños y contratistas.
+Aplicación para la gestión completa de cosecha de cerezas con distintos tipo de usuarios y funcionalidades especificas para cada rol. Permite registrar la producción de los cosecheros mediante QRs únicos, controlar el avance de los cuarteles e hileras cosechadas, llevar un seguimiento de cajas y bins, realizar inspecciones en packing y entregar reportes claros a los dueños y contratistas.
 
 ## Roles y funcionalidades
 ### Dueño
@@ -26,26 +26,11 @@ Aplicación para la gestión completa de cosecha de cerezas con distintos tipo d
 
 ### Planillero
 * Registra la cantidad de cajas generadas por trabajador.
-
-## Nuevas funcionalidades
-
-### Preferencias
-* Modo oscuro/claro: Personaliza la apariencia de la app.
-* Unidad de medida: Kilogramos o libras.
-* Oreden de registros: Recientes primero o antiguos primero.
-* Idioma: Inglés o Español.
-
-### Instalación
-
-### Capturas de pantalla
-<p align="center">
-<img src="assets/PantallaInicial.jfif" alt="Home" width="200"/>
-<img src="assets/PantallaRegistrar.jfif" alt="Planillero" width="200"/>
-<img src="assets/PantallaDatosGuardados.jfif" alt="Contratista" width="200"/>
-</p>
+* Puede exportar los datos diarios.
+* Visualiza lo que lleva generado.
 
 ### Video
-https://drive.google.com/file/d/1mBXWjvFNCSZ54XPL02E8US0mLuSjFVDA/view?usp=sharing
+https://drive.google.com/file/d/1qZPOc9NZN1A8KpL8QXwMTdj4wFFg9sal/view?usp=sharing
 
 ### Diagrama
 
@@ -110,6 +95,7 @@ mindmap
 
     
 ```
+
 
 
 
